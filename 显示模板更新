@@ -1,0 +1,20 @@
+一、原理：一打开采购订单，则会自动检查【显示模板】是否需要更新，使用代码如下：
+select convert(money,pubufts) as pubufts  from vouchertemplates_base where vt_cardnumber='88' and vt_id='8173'
+二、解析：直接取《单据模板基础信息表》的时间戳更新信息决定是否更新单据，每次前端修改模板时，后台均会更新以下4个表，且是要要素更新
+vouchertemplates_base Table  (AS 公用目录设置)  [U861]	单据模板表	显示及打印模板的设置信息，但不含模板名称信息
+voucheritems_base Table  (AS 公用目录设置)  [U861]	单据模板明细信息基本表	包含表头与表体的各种控制信息，比如是否可修改
+vouchertemplates_lang Table  (AS 公用目录设置)  [U861]	单据模板语言表	类似于主表，包含模板名称信息
+voucheritems_lang Table  (AS 公用目录设置)  [U861]	单据显示模板明细语言表	分语言包含表体表头构成项目的名称的自定义别名
+三、应用
+开发外挂《采购订单》的价格信息禁止或授权修改时，可使用显示模板对价格信息的禁止编辑功能实现价格可编辑授权
+外挂后台代码信息：
+①更新是否可编辑信息
+update 
+voucheritems_base-- 单据模板明细信息基本表 
+set CanModify=1 --1为允许编辑，0为禁止编辑
+where VT_ID ='8173'
+	and FieldName='itaxprice'
+go
+②促使使用界面更新模板
+update vouchertemplates_base set VT_TemplateMode='0' 
+where vt_cardnumber='88' and vt_id='8173'
